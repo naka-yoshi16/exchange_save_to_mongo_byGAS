@@ -65,6 +65,7 @@ function getAPIKey() {
 
 
 // function saveDaily(query, nresults, apikey) {
+  
 function saveDaily() {
   
  const activeSheetsApp = SpreadsheetApp.getActiveSpreadsheet();
