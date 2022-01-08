@@ -56,6 +56,7 @@ function getSprdShtData(){
   // 日付、レートを格納 
   mapRates(getSprdShtData, rates)
   console.log(JSON.stringify(getSprdShtData))
+
   return getSprdShtData
 }
 
@@ -64,34 +65,35 @@ function getSprdShtData(){
 // 比較通貨とレートを抽出
 // ============================================ 
 function getData(getDocuments, ComparedCurrencies, rates) {
- for (d = 1; d <= getDocuments.length; d++) {
-   const row = getDocuments[d - 1]
-   const item = row[0]
+  // 取得データをループ
+  for (d = 1; d <= getDocuments.length; d++) {
+    const row = getDocuments[d - 1] // 行を格納
+    const item = row[0] // 行の先頭
     //  console.log(item)
-   switch (item) {
-    case 'Compared Currency':
-      // console.log('a')
-      row.forEach((value, index, array) => {
-        if(index == 0) value = "";
-        ComparedCurrencies.push(value)
-      });
-      break;
-    case 'line':
-      break;
-    case 'Date':
-      // console.log('b')
-      break;
-    default:
-      // console.log('rates');
-      // row.forEach((value, index, array) => {
-      //   rates.push(value)
-      // });
-      let ratesOneday = [];
-      row.forEach((value, index, array) => {
-        ratesOneday.push(value)
-      });
-      rates.push(ratesOneday)
-   } 
+    switch (item) { // 行の先頭により処理変更
+      case 'Compared Currency':
+        // console.log('a')
+        row.forEach((value, index, array) => {
+          if(index == 0) value = "";
+          ComparedCurrencies.push(value)
+        });
+        break;
+      case 'line': // 何もしない
+        break;
+      case 'Date': // 何もしない
+        break;
+      default:
+        // console.log('rates');
+        // row.forEach((value, index, array) => {
+        //   rates.push(value)
+        // });
+        let ratesOneday = [];
+        row.forEach((value, index, array) => {
+          ratesOneday.push(value) // 列ごとにpush
+        });
+        // 日付ごとにpush
+        rates.push(ratesOneday)
+    } 
   //  console.log(ComparedCurrencies)
   //  console.log(rates)
   }
@@ -101,12 +103,12 @@ function getData(getDocuments, ComparedCurrencies, rates) {
 // 通貨を格納 
 // ============================================ 
 function mapCurrencies(saveDocuments, ComparedCurrencies, BaseCurrency) {
-  saveDocumentsLen = -1;
+  saveDocumentsLen = -1; // 通貨切り替え用
   ComparedCurrencies.forEach((value, index, array) => {
     // console.log(index, index%2)
     if(index%2 == 0){
-      saveDocuments.push({})
-      saveDocumentsLen++;
+      saveDocuments.push({}) // 通貨ごとのobject枠作成
+      saveDocumentsLen++; 
       // saveDocuments[saveDocumentsLen].BaseCurrency = BaseCurrency
       saveDocuments[saveDocumentsLen]["BaseCurrency"] = BaseCurrency
     }else{
@@ -120,23 +122,26 @@ function mapCurrencies(saveDocuments, ComparedCurrencies, BaseCurrency) {
 // 日付、レートを格納 
 // ============================================ 
 function mapRates(saveDocuments, rates){
-  // saveDocumentsLen = -1;
+  // saveDocumentsLen = -1; // 通貨切り替え用
   // rates.forEach((value, index, array) => {
+
+  // 日付ごとにループ
   rates.forEach((ratesOneday, days, array) => {
-    saveDocumentsLen = -1;
+    saveDocumentsLen = -1; // 通貨切り替え用
     // console.log(index, index%2)
+    // 通貨ごとに日付、レートを格納 
     ratesOneday.forEach((value, index, array) => {
-      if(index%2 == 0){
+      if(index%2 == 0){ // index=偶数の場合→日付
         saveDocumentsLen++;
         if(!saveDocuments[saveDocumentsLen]["priceDiary"]){
-          saveDocuments[saveDocumentsLen]["priceDiary"] = []
+          saveDocuments[saveDocumentsLen]["priceDiary"] = [] // priceDiaryのArray枠作成
         }
-        saveDocuments[saveDocumentsLen]["priceDiary"][days] = {}
+        saveDocuments[saveDocumentsLen]["priceDiary"][days] = {} // priceDiaryの日付ごとのObj枠作成
         saveDocuments[saveDocumentsLen]["priceDiary"][days].Date = value
         // saveDocuments[saveDocumentsLen]["priceDiary"][0].Date = value.toLocaleString('ja-JP')
         // console.log(value)
         // console.log(value.toLocaleString('ja-JP'))
-      }else{
+      }else{ // index=奇数の場合→レート
         saveDocuments[saveDocumentsLen]["priceDiary"][days].open = ""
         saveDocuments[saveDocumentsLen]["priceDiary"][days].high = ""
         saveDocuments[saveDocumentsLen]["priceDiary"][days].low = ""
@@ -144,22 +149,4 @@ function mapRates(saveDocuments, rates){
       }
     });
   });
-  // saveDocumentsLen = -1;
-  // rates.forEach((value, index, array) => {
-  //   // console.log(index, index%2)
-  //   if(index%2 == 0){
-  //     saveDocumentsLen++;
-  //     saveDocuments[saveDocumentsLen]["priceDiary"] = []
-  //     saveDocuments[saveDocumentsLen]["priceDiary"][0] = {}
-  //     saveDocuments[saveDocumentsLen]["priceDiary"][0].Date = value
-  //     // saveDocuments[saveDocumentsLen]["priceDiary"][0].Date = value.toLocaleString('ja-JP')
-  //     // console.log(value)
-  //     // console.log(value.toLocaleString('ja-JP'))
-  //   }else{
-  //     saveDocuments[saveDocumentsLen]["priceDiary"][0].open = ""
-  //     saveDocuments[saveDocumentsLen]["priceDiary"][0].high = ""
-  //     saveDocuments[saveDocumentsLen]["priceDiary"][0].low = ""
-  //     saveDocuments[saveDocumentsLen]["priceDiary"][0].close = value
-  //   }
-  // });
 }

@@ -4,7 +4,6 @@ function updatePriceDiary() {
   // console.log(`MongoData:\n${JSON.stringify(MongoData, null ," ")}`)
   // console.log(`SprdShtData:\n${JSON.stringify(SprdShtData, null ," ")}`)
   
-
   // 通貨ごとにループ
   for(i=0; i<MongoData.length; i++){
     // console.log(MongoData[i])
@@ -33,6 +32,11 @@ function updatePriceDiary() {
         }
       })
     }
+    
+    //Dateの降順ソート
+    // MongoData[i].priceDiary.sort((a, b) => b.Date - a.Date)
+    MongoData[i].priceDiary.sort((a, b) => 
+      new Date(b.Date).getTime() - new Date(a.Date).getTime())
 
     // ひと通貨ごとに保存
     update(MongoData[i])

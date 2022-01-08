@@ -8,3 +8,10 @@ function g_options(payload){
   } 
   return options
 }
+
+
+const findEndpoint      = 'https://data.mongodb-api.com/app/data-whorv/endpoint/data/beta/action/find';
+
+const insertOneEndpoint = 'https://data.mongodb-api.com/app/data-whorv/endpoint/data/beta/action/insertOne';
+
+const updateOneEndpoint = 'https://data.mongodb-api.com/app/data-whorv/endpoint/data/beta/action/updateOne';

@@ -1,6 +1,6 @@
 // Google AppsScriptsを使用してMongoDBAtlasからデータを取得する
 // const findEndpoint = 'https://data.mongodb-api.com/app/data-amzuu/endpoint/data/beta/action/find';
-const findEndpoint = 'https://data.mongodb-api.com/app/data-whorv/endpoint/data/beta/action/find';
+// const findEndpoint = 'https://data.mongodb-api.com/app/data-whorv/endpoint/data/beta/action/find';
 
 const clusterName = "Cluster0"
  
@@ -63,7 +63,7 @@ function lookupInspection() {
 
 // Google AppsScriptsからMongoDBAtlasへの書き込み
 // const insertOneEndpoint = '[https://data.mongodb-api.com/app/data-whorv/endpoint/data/beta/action/insertOne](https://data.mongodb-api.com/app/data-whorv/endpoint/data/beta/action/insertOne)'
-const insertOneEndpoint = 'https://data.mongodb-api.com/app/data-whorv/endpoint/data/beta/action/insertOne'
+// const insertOneEndpoint = 'https://data.mongodb-api.com/app/data-whorv/endpoint/data/beta/action/insertOne'
 
 function logUsage(query, nresults, apikey) {
   // const document = { date: { $date: { $numberLong: ${(new Date()).getTime()} } }, query, nresults, by: Session.getActiveUser().getEmail() } 
