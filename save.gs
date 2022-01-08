@@ -1,4 +1,4 @@
-function myFunction() {
+function updatePriceDiary() {
   const MongoData = getMongoData();
   const SprdShtData = getSprdShtData();
   // console.log(`MongoData:\n${JSON.stringify(MongoData, null ," ")}`)
@@ -33,37 +33,30 @@ function myFunction() {
         }
       })
     }
+
+    // ひと通貨ごとに保存
+    update(MongoData[i])
+  }
+}
+
+function update(updateData){
+  const payload = {
+    dataSource: "Cluster0",
+    database  : "Exchange_Gas",
+    collection: "exchange",
+    filter    : { ComparedCurrency: updateData.ComparedCurrency },
+    "update"  : {
+        "$set": {
+        // "$setOnInsert": {
+        // "$upsert": {
+            // "priceDiary": [0,1,2],
+            "priceDiary": updateData.priceDiary,
+            // "completedAt": { "$date": { "$numberLong": "1637083942954" } }
+        },          
+    },
+    upsert:true
   }
 
-
-  // ひと通貨ごとに保存
-  for(i=0; i<MongoData.length; i++){
-    const payload = {
-      dataSource: "Cluster0",
-      database: "Exchange_Gas",
-      collection: "exchange",
-      filter: { ComparedCurrency: MongoData[i].ComparedCurrency },
-      "update": {
-          "$set": {
-          // "$setOnInsert": {
-          // "$upsert": {
-              // "priceDiary": [0,1,2],
-              "priceDiary": MongoData[i].priceDiary,
-              // "completedAt": { "$date": { "$numberLong": "1637083942954" } }
-          },          
-      },
-      upsert:true
-    }
-
-    const options = {
-      method: 'post',
-      contentType: 'application/json',
-      payload: JSON.stringify(payload),
-      // headers: { "api-key": apikey }
-      headers: { "api-key": getAPIKey() }
-    };
-
-    // const response = UrlFetchApp.fetch(insertOneEndpoint, options);
-    const response = UrlFetchApp.fetch(updateOneEndpoint, options);
-  }
+  // const response = UrlFetchApp.fetch(insertOneEndpoint, g_options(payload));
+  const response = UrlFetchApp.fetch(updateOneEndpoint, g_options(payload));
 }
