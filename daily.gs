@@ -13,22 +13,22 @@ function saveDaily() {
 
   //  現在のデータを取得
   const getDocuments = sheet.getRange(`B4:S7`).getValues();
-  console.log(getDocuments)
+  // console.log(getDocuments)
 
   // 比較通貨とレートを抽出 getData(getDocuments, ComparedCurrencies, rates)
   getData(getDocuments, ComparedCurrencies, rates)
-  console.log(ComparedCurrencies)
-  console.log(rates)
+  // console.log(ComparedCurrencies)
+  // console.log(rates)
 
   // 比較通貨とレートを整形
-  console.log(saveDocuments)
+  // console.log(saveDocuments)
   // 通貨を格納 
   mapCurrencies(saveDocuments, ComparedCurrencies, BaseCurrency)
-  console.log(saveDocuments)
+  // console.log(saveDocuments)
 
   // 日付、レートを格納 
   mapRates(saveDocuments, rates)
-  console.log(JSON.stringify(saveDocuments))
+  // console.log(JSON.stringify(saveDocuments))
  
  //  sheet.getRange(`C3:K103`).clear()
  
@@ -72,7 +72,7 @@ function getData(getDocuments, ComparedCurrencies, rates) {
  for (d = 1; d <= getDocuments.length; d++) {
    const row = getDocuments[d - 1]
    const item = row[0]
-   console.log(item)
+  //  console.log(item)
    switch (item) {
     case 'Compared Currency':
       // console.log('a')
@@ -87,7 +87,7 @@ function getData(getDocuments, ComparedCurrencies, rates) {
       // console.log('b')
       break;
     default:
-      console.log('rates');
+      // console.log('rates');
       row.forEach((value, index, array) => {
         rates.push(value)
       });
@@ -124,6 +124,9 @@ function mapRates(saveDocuments, rates){
       saveDocuments[saveDocumentsLen]["priceDiary"] = []
       saveDocuments[saveDocumentsLen]["priceDiary"][0] = {}
       saveDocuments[saveDocumentsLen]["priceDiary"][0].Date = value
+      // saveDocuments[saveDocumentsLen]["priceDiary"][0].Date = value.toLocaleString('ja-JP')
+      // console.log(value)
+      // console.log(value.toLocaleString('ja-JP'))
     }else{
       saveDocuments[saveDocumentsLen]["priceDiary"][0].open = ""
       saveDocuments[saveDocumentsLen]["priceDiary"][0].high = ""
