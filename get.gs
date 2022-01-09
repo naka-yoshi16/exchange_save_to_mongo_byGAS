@@ -1,5 +1,3 @@
-// const findEndpoint = 'https://data.mongodb-api.com/app/data-whorv/endpoint/data/beta/action/find';
-
 // ============================================
 // mongoの保存済データを取得  
 // ============================================
@@ -27,47 +25,46 @@ function getMongoData() {
 // GoogleSpreadSheetからデータ(新規データ含む)取得
 // ============================================
 function getSprdShtData(){
-
+// https://uxmilk.jp/25841
  const activeSheetsApp = SpreadsheetApp.getActiveSpreadsheet();
 //  const sheet = activeSheetsApp.getSheets()[3];
  const sheet = activeSheetsApp.getSheets()[2];
  const BaseCurrency = sheet.getRange("B2").getValue();
 
- const getSprdShtData = [];
- const ComparedCurrencies = [];
- const rates = [];
+ const ComparedCurrencies = []; // 通貨情報の格納用
+ const DateRates = []; // 日時, レートの格納用
+ const saveDocuments = []; // mongoへ保存する形式の格納用
 
-  //  現在のデータを取得
-  // const getDocuments = sheet.getRange(`B4:S7`).getValues();
-  const getDocuments = sheet.getRange(`B4:S37`).getValues();
-  console.log(getDocuments)
+  //  現在の(指定範囲)データを取得
+  // const getSheetData = sheet.getRange(`B4:S7`).getValues();
+  const getSheetData = sheet.getRange(`B4:S37`).getValues();
+  // console.log(getSheetData)
 
-  // 比較通貨とレートを抽出 getData(getDocuments, ComparedCurrencies, rates)
-  getData(getDocuments, ComparedCurrencies, rates)
+  // 取得したシートデータから比較通貨とレートへ分割 divideData(getSheetData, ComparedCurrencies, DateRates)
+  divideData(getSheetData, ComparedCurrencies, DateRates)
   // console.log(ComparedCurrencies)
-  // console.log(rates)
+  // console.log(DateRates)
 
   // 比較通貨とレートを整形
-  // console.log(getSprdShtData)
+  // console.log(saveDocuments)
   // 通貨を格納 
-  mapCurrencies(getSprdShtData, ComparedCurrencies, BaseCurrency)
-  // console.log(getSprdShtData)
+  mapCurrencies(BaseCurrency, ComparedCurrencies, saveDocuments)
+  // console.log(saveDocuments)
 
   // 日付、レートを格納 
-  mapRates(getSprdShtData, rates)
-  console.log(JSON.stringify(getSprdShtData))
+  mapDateRates(DateRates, saveDocuments)
+  console.log(JSON.stringify(saveDocuments))
 
-  return getSprdShtData
+  return saveDocuments
 }
-
 
 // ============================================ 
 // 比較通貨とレートを抽出
 // ============================================ 
-function getData(getDocuments, ComparedCurrencies, rates) {
+function divideData(getSheetData, ComparedCurrencies, DateRates) {
   // 取得データをループ
-  for (d = 1; d <= getDocuments.length; d++) {
-    const row = getDocuments[d - 1] // 行を格納
+  for (d = 1; d <= getSheetData.length; d++) {
+    const row = getSheetData[d - 1] // 行を格納
     const item = row[0] // 行の先頭
     //  console.log(item)
     switch (item) { // 行の先頭により処理変更
@@ -83,37 +80,33 @@ function getData(getDocuments, ComparedCurrencies, rates) {
       case 'Date': // 何もしない
         break;
       default:
-        // console.log('rates');
-        // row.forEach((value, index, array) => {
-        //   rates.push(value)
-        // });
-        let ratesOneday = [];
+        let ratesOneday = []; // 各セルデータ格納用
         row.forEach((value, index, array) => {
-          ratesOneday.push(value) // 列ごとにpush
+          ratesOneday.push(value) // セル(日時, レート, 日時, ...)ごとにpush
         });
-        // 日付ごとにpush
-        rates.push(ratesOneday)
+        // 日付(行)ごとにpush
+        DateRates.push(ratesOneday)
     } 
   //  console.log(ComparedCurrencies)
-  //  console.log(rates)
+  //  console.log(DateRates)
   }
 }
 
 // ============================================ 
 // 通貨を格納 
 // ============================================ 
-function mapCurrencies(saveDocuments, ComparedCurrencies, BaseCurrency) {
-  saveDocumentsLen = -1; // 通貨切り替え用
+function mapCurrencies(BaseCurrency, ComparedCurrencies, makeCurrData) {
+  currSrlNum = -1; // 通貨(切り替え用)連番
   ComparedCurrencies.forEach((value, index, array) => {
     // console.log(index, index%2)
     if(index%2 == 0){
-      saveDocuments.push({}) // 通貨ごとのobject枠作成
-      saveDocumentsLen++; 
-      // saveDocuments[saveDocumentsLen].BaseCurrency = BaseCurrency
-      saveDocuments[saveDocumentsLen]["BaseCurrency"] = BaseCurrency
+      makeCurrData.push({}) // 通貨ごとのobject枠作成
+      currSrlNum++; // 通貨切り替え
+      // makeCurrData[currSrlNum].BaseCurrency = BaseCurrency
+      makeCurrData[currSrlNum]["BaseCurrency"] = BaseCurrency
     }else{
-      // saveDocuments[saveDocumentsLen].ComparedCurrency = value
-      saveDocuments[saveDocumentsLen]["ComparedCurrency"] = value
+      // makeCurrData[currSrlNum].ComparedCurrency = value
+      makeCurrData[currSrlNum]["ComparedCurrency"] = value
     }
   });
 }
@@ -121,31 +114,27 @@ function mapCurrencies(saveDocuments, ComparedCurrencies, BaseCurrency) {
 // ============================================ 
 // 日付、レートを格納 
 // ============================================ 
-function mapRates(saveDocuments, rates){
-  // saveDocumentsLen = -1; // 通貨切り替え用
-  // rates.forEach((value, index, array) => {
-
-  // 日付ごとにループ
-  rates.forEach((ratesOneday, days, array) => {
-    saveDocumentsLen = -1; // 通貨切り替え用
-    // console.log(index, index%2)
-    // 通貨ごとに日付、レートを格納 
+function mapDateRates(DateRates, makeDateRates){
+  // 日付(行)ごとにループ
+  DateRates.forEach((ratesOneday, days, array) => {
+    currSrlNum = -1; // 通貨(切り替え用)連番
+    // 日時、レート(セル)ごとにループ
     ratesOneday.forEach((value, index, array) => {
-      if(index%2 == 0){ // index=偶数の場合→日付
-        saveDocumentsLen++;
-        if(!saveDocuments[saveDocumentsLen]["priceDiary"]){
-          saveDocuments[saveDocumentsLen]["priceDiary"] = [] // priceDiaryのArray枠作成
+      if(index%2 == 0){ // index=偶数の場合→日時を格納
+        currSrlNum++; // 通貨切り替え
+        if(!makeDateRates[currSrlNum]["priceDiary"]){
+          makeDateRates[currSrlNum]["priceDiary"] = [] // priceDiaryのArray枠作成
         }
-        saveDocuments[saveDocumentsLen]["priceDiary"][days] = {} // priceDiaryの日付ごとのObj枠作成
-        saveDocuments[saveDocumentsLen]["priceDiary"][days].Date = value
-        // saveDocuments[saveDocumentsLen]["priceDiary"][0].Date = value.toLocaleString('ja-JP')
+        makeDateRates[currSrlNum]["priceDiary"][days] = {} // priceDiaryの日付ごとのObj枠作成
+        makeDateRates[currSrlNum]["priceDiary"][days].Date = value
+        // makeDateRates[currSrlNum]["priceDiary"][0].Date = value.toLocaleString('ja-JP')
         // console.log(value)
         // console.log(value.toLocaleString('ja-JP'))
-      }else{ // index=奇数の場合→レート
-        saveDocuments[saveDocumentsLen]["priceDiary"][days].open = ""
-        saveDocuments[saveDocumentsLen]["priceDiary"][days].high = ""
-        saveDocuments[saveDocumentsLen]["priceDiary"][days].low = ""
-        saveDocuments[saveDocumentsLen]["priceDiary"][days].close = value
+      }else{ // index=奇数の場合→レートを格納
+        makeDateRates[currSrlNum]["priceDiary"][days].open = ""
+        makeDateRates[currSrlNum]["priceDiary"][days].high = ""
+        makeDateRates[currSrlNum]["priceDiary"][days].low = ""
+        makeDateRates[currSrlNum]["priceDiary"][days].close = value
       }
     });
   });

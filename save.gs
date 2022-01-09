@@ -1,19 +1,18 @@
+// ============================================
+// priceDiary(既存+新規)をmongoへ更新
+// ============================================
 function updatePriceDiary() {
   const MongoData = getMongoData();
   const SprdShtData = getSprdShtData();
-  // console.log(`MongoData:\n${JSON.stringify(MongoData, null ," ")}`)
-  // console.log(`SprdShtData:\n${JSON.stringify(SprdShtData, null ," ")}`)
   
-  // 通貨ごとにループ
+  // 通貨ごとにループ(既存データをループ)
   for(i=0; i<MongoData.length; i++){
-    // console.log(MongoData[i])
-
     // MongoDataと通貨が一致するSprdShtData(新規追加候補のデータセット)
     const newDataset = SprdShtData.find(data => data.ComparedCurrency === MongoData[i].ComparedCurrency)
 
     // BaseCurrencyの確認
     if(newDataset.BaseCurrency === MongoData[i].BaseCurrency){
-      // 日付が一致するデータを探す
+      // 日付が一致するデータを探す(新規追加候補をループ)
       newDataset.priceDiary.forEach((newPriceDiary, index, array) => {
         // MongoDataの中からnewPriceDiaryが存在するか確認
         const existPriceDiary = MongoData[i].priceDiary.find(data => data.Date === newPriceDiary.Date.toISOString())
@@ -21,20 +20,14 @@ function updatePriceDiary() {
 
         // 日付が存在しない場合(新データの場合)
         if(!existPriceDiary){
-          console.log(newDataset) // 
-          // console.log(`existPriceDiary: ${JSON.stringify(existPriceDiary)}`)
-          // console.log(`newPriceDiary.Date:${JSON.stringify(newPriceDiary.Date)}`)
-
+          // console.log(newDataset) // 
           // 新priceDiaryデータを追加
-          // console.log(`before   MongoData[i].priceDiary:${JSON.stringify(MongoData[i].priceDiary,null, " ")}`)
           MongoData[i].priceDiary.push(newPriceDiary)
-          // console.log(`after   MongoData[i].priceDiary:${JSON.stringify(MongoData[i].priceDiary,null, " ")}`)
         }
       })
     }
     
     //Dateの降順ソート
-    // MongoData[i].priceDiary.sort((a, b) => b.Date - a.Date)
     MongoData[i].priceDiary.sort((a, b) => 
       new Date(b.Date).getTime() - new Date(a.Date).getTime())
 
@@ -43,6 +36,9 @@ function updatePriceDiary() {
   }
 }
 
+// ============================================
+// データを更新
+// ============================================
 function update(updateData){
   const payload = {
     dataSource: "Cluster0",
@@ -51,11 +47,7 @@ function update(updateData){
     filter    : { ComparedCurrency: updateData.ComparedCurrency },
     "update"  : {
         "$set": {
-        // "$setOnInsert": {
-        // "$upsert": {
-            // "priceDiary": [0,1,2],
-            "priceDiary": updateData.priceDiary,
-            // "completedAt": { "$date": { "$numberLong": "1637083942954" } }
+          "priceDiary": updateData.priceDiary,
         },          
     },
     upsert:true
