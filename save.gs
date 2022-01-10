@@ -7,6 +7,10 @@ function updatePriceDiary() {
   
   // 通貨ごとにループ(既存データをループ)
   for(i=0; i<MongoData.length; i++){
+    // 実行ログ用
+    pushDate = []; // 追加した日時
+    modifiedDate = []; // データ変更した日時
+
     // MongoDataと通貨が一致するSprdShtData(新規追加候補のデータセット)
     const newDataset = SprdShtData.find(data => data.ComparedCurrency === MongoData[i].ComparedCurrency)
 
@@ -21,8 +25,29 @@ function updatePriceDiary() {
         // 日付が存在しない場合(新データの場合)
         if(!existPriceDiary){
           // console.log(newDataset) // 
-          // 新priceDiaryデータを追加
-          MongoData[i].priceDiary.push(newPriceDiary)
+          MongoData[i].priceDiary.push(newPriceDiary) // 新priceDiaryデータを追加
+          
+          //実行ログ用
+          pushDate.push(newPriceDiary.Date.toISOString())
+        }else{ // 日付が一致の場合
+          // 既存データと新規データに差異がある場合
+          if( existPriceDiary.close !== newPriceDiary.close
+          //  || existPriceDiary.open  !== newPriceDiary.open
+          //  || existPriceDiary.high  !== newPriceDiary.high
+          //  || existPriceDiary.close !== newPriceDiary.low
+           ){
+            //  差異ありのMongoData.priceDiaryを削除
+            MongoData[i].priceDiary.forEach((modifyMongoData,index) => {
+              if(modifyMongoData.Date === newPriceDiary.Date.toISOString()) {
+                // delete MongoData[i].priceDiary[index]
+                MongoData[i].priceDiary.splice(index, 1)
+              }
+            })
+            MongoData[i].priceDiary.push(newPriceDiary) // 新priceDiaryデータを追加
+            
+            //実行ログ用
+            modifiedDate.push(newPriceDiary.Date.toISOString())
+          }
         }
       })
     }
@@ -33,6 +58,10 @@ function updatePriceDiary() {
 
     // ひと通貨ごとに保存
     update(MongoData[i])
+    //実行ログ
+    if(pushDate.length !=0 || modifiedDate.length != 0){
+      console.log(` pushDate.length:${pushDate.length} modifiedDate.length:${modifiedDate.length}\n pushDate:\n${JSON.stringify(pushDate,null," ")}\n modifiedDate:\n${JSON.stringify(modifiedDate, null, " ")}`)
+    }
   }
 }
 
@@ -55,4 +84,20 @@ function update(updateData){
 
   // const response = UrlFetchApp.fetch(insertOneEndpoint, g_options(payload));
   const response = UrlFetchApp.fetch(updateOneEndpoint, g_options(payload));
+  // 実行ログ
+  console.log(`update:${updateData.ComparedCurrency}/${updateData.BaseCurrency}  ${response}  priceDiary.length=${updateData.priceDiary.length}`)
+}
+
+
+// ============================================
+// !注意　普段は使わない想定! 新規データを保存 
+// ============================================
+function newSaveData(){
+  const SprdShtData = getSprdShtData();
+
+  // 通貨ごとにループ(既存データをループ)
+  for(i=0; i<SprdShtData.length; i++){
+    // ひと通貨ごとに保存
+    update(SprdShtData[i])
+  }
 }

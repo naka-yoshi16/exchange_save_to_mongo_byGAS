@@ -53,7 +53,7 @@ function getSprdShtData(){
 
   // 日付、レートを格納 
   mapDateRates(DateRates, saveDocuments)
-  console.log(JSON.stringify(saveDocuments))
+  // console.log(JSON.stringify(saveDocuments))
 
   return saveDocuments
 }
