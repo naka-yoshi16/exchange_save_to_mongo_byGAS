@@ -131,9 +131,9 @@ function mapDateRates(DateRates, makeDateRates){
         // console.log(value)
         // console.log(value.toLocaleString('ja-JP'))
       }else{ // index=奇数の場合→レートを格納
-        makeDateRates[currSrlNum]["priceDiary"][days].open = ""
-        makeDateRates[currSrlNum]["priceDiary"][days].high = ""
-        makeDateRates[currSrlNum]["priceDiary"][days].low = ""
+        makeDateRates[currSrlNum]["priceDiary"][days].open = null
+        makeDateRates[currSrlNum]["priceDiary"][days].high = null
+        makeDateRates[currSrlNum]["priceDiary"][days].low = null
         makeDateRates[currSrlNum]["priceDiary"][days].close = value
       }
     });

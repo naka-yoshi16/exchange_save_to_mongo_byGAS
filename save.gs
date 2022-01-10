@@ -31,10 +31,11 @@ function updatePriceDiary() {
           pushDate.push(newPriceDiary.Date.toISOString())
         }else{ // 日付が一致の場合
           // 既存データと新規データに差異がある場合
+          // judgeNull(existPriceDiary.open, newPriceDiary.open)
           if( existPriceDiary.close !== newPriceDiary.close
-          //  || existPriceDiary.open  !== newPriceDiary.open
-          //  || existPriceDiary.high  !== newPriceDiary.high
-          //  || existPriceDiary.close !== newPriceDiary.low
+           || existPriceDiary.open  !== newPriceDiary.open
+           || existPriceDiary.high  !== newPriceDiary.high
+           || existPriceDiary.low   !== newPriceDiary.low
            ){
             // 差異ありのMongoData.priceDiaryを洗い替え
             MongoData[i].priceDiary.forEach((MngData,index) => { // 既存priceDiaryをループ
@@ -101,4 +102,17 @@ function newSaveData(){
     // ひと通貨ごとに保存
     update(SprdShtData[i])
   }
+}
+
+function judgeNull(a, b){
+  // let a = null;
+  // let b = null;
+
+    console.log(`a:${a},b:${b}`)
+
+    console.log(`a === b:${a === b}`)
+    console.log(`a == b:${a == b}`)
+
+    console.log(`a !== b:${a !== b}`)
+    console.log(`a != b:${a != b}`)
 }
