@@ -1,5 +1,5 @@
 // ============================================
-// mongoの保存済データを取得  
+// mongoの保存済データを取得
 // ============================================
 function getMongoData() {
 // https://docs.atlas.mongodb.com/api/data-api-resources/#find-multiple-documents
@@ -28,7 +28,8 @@ function getSprdShtData(){
 // https://uxmilk.jp/25841
  const activeSheetsApp = SpreadsheetApp.getActiveSpreadsheet();
 //  const sheet = activeSheetsApp.getSheets()[3];
- const sheet = activeSheetsApp.getSheets()[2];
+//  const sheet = activeSheetsApp.getSheets()[2];
+ const sheet = activeSheetsApp.getSheetByName('為替取得(定例実行用)');
  const BaseCurrency = sheet.getRange("B2").getValue();
 
  const ComparedCurrencies = []; // 通貨情報の格納用
@@ -36,8 +37,7 @@ function getSprdShtData(){
  const saveDocuments = []; // mongoへ保存する形式の格納用
 
   //  現在の(指定範囲)データを取得
-  // const getSheetData = sheet.getRange(`B4:S7`).getValues();
-  const getSheetData = sheet.getRange(`B4:S37`).getValues();
+  const getSheetData = sheet.getRange(`B:S`).getValues();
   // console.log(getSheetData)
 
   // 取得したシートデータから比較通貨とレートへ分割 divideData(getSheetData, ComparedCurrencies, DateRates)
@@ -62,9 +62,10 @@ function getSprdShtData(){
 // 比較通貨とレートを抽出
 // ============================================ 
 function divideData(getSheetData, ComparedCurrencies, DateRates) {
-  // 取得データをループ
-  for (d = 1; d <= getSheetData.length; d++) {
-    const row = getSheetData[d - 1] // 行を格納
+  // 取得データをループ(行4からスタート)
+  for (d = 3; d < getSheetData.length; d++) {
+    // const row = getSheetData[d - 1] // 行を格納
+    const row = getSheetData[d] // 行を格納
     const item = row[0] // 行の先頭
     //  console.log(item)
     switch (item) { // 行の先頭により処理変更
@@ -78,6 +79,8 @@ function divideData(getSheetData, ComparedCurrencies, DateRates) {
       case 'line': // 何もしない
         break;
       case 'Date': // 何もしない
+        break;
+      case '': // 何もしない
         break;
       default:
         let ratesOneday = []; // 各セルデータ格納用

@@ -5,7 +5,7 @@ const insertOneEndpoint = 'https://data.mongodb-api.com/app/data-whorv/endpoint/
 
 const updateOneEndpoint = 'https://data.mongodb-api.com/app/data-whorv/endpoint/data/beta/action/updateOne';
 
-// options
+// options)
 function g_options(payload){
   const options = {
     method: 'post',
@@ -17,6 +17,7 @@ function g_options(payload){
 }
 
 // apikey取得
+// Securing Secret API Keys in Google Apps Scripts(https://www.mongodb.com/developer/quickstart/atlas_data_api_google_sheets_apps_script/#securing-secret-api-keys-in-google-apps-scripts
 function getAPIKey() {
  const userProperties = PropertiesService.getUserProperties();
  let apikey = userProperties.getProperty('APIKEY');
