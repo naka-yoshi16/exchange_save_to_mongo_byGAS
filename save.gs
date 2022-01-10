@@ -9,7 +9,7 @@ function updatePriceDiary() {
   for(i=0; i<MongoData.length; i++){
     // 実行ログ用
     pushDate = []; // 追加した日時
-    modifiedDate = []; // データ変更した日時
+    modifyData = []; // 修正したデータ(修正前)(修正後はDBに反映されているため、ログには出さない)
 
     // MongoDataと通貨が一致するSprdShtData(新規追加候補のデータセット)
     const newDataset = SprdShtData.find(data => data.ComparedCurrency === MongoData[i].ComparedCurrency)
@@ -36,17 +36,18 @@ function updatePriceDiary() {
           //  || existPriceDiary.high  !== newPriceDiary.high
           //  || existPriceDiary.close !== newPriceDiary.low
            ){
-            //  差異ありのMongoData.priceDiaryを削除
-            MongoData[i].priceDiary.forEach((modifyMongoData,index) => {
-              if(modifyMongoData.Date === newPriceDiary.Date.toISOString()) {
-                // delete MongoData[i].priceDiary[index]
-                MongoData[i].priceDiary.splice(index, 1)
+            // 差異ありのMongoData.priceDiaryを洗い替え
+            MongoData[i].priceDiary.forEach((MngData,index) => { // 既存priceDiaryをループ
+              if(MngData.Date === newPriceDiary.Date.toISOString()) { // 既存priceDiaryの日時と新規データの日時の比較
+              　// 差異ありのMongoData.priceDiaryを削除
+                const oldPriceDiary = MongoData[i].priceDiary.splice(index, 1)
+                
+                //実行ログ用
+                modifyData.push(oldPriceDiary)
               }
             })
-            MongoData[i].priceDiary.push(newPriceDiary) // 新priceDiaryデータを追加
-            
-            //実行ログ用
-            modifiedDate.push(newPriceDiary.Date.toISOString())
+            // 新priceDiaryデータを追加
+            MongoData[i].priceDiary.push(newPriceDiary)
           }
         }
       })
@@ -59,8 +60,8 @@ function updatePriceDiary() {
     // ひと通貨ごとに保存
     update(MongoData[i])
     //実行ログ
-    if(pushDate.length !=0 || modifiedDate.length != 0){
-      console.log(` pushDate.length:${pushDate.length} modifiedDate.length:${modifiedDate.length}\n pushDate:\n${JSON.stringify(pushDate,null," ")}\n modifiedDate:\n${JSON.stringify(modifiedDate, null, " ")}`)
+    if(pushDate.length !=0 || modifyData.length != 0){
+      console.log(` pushDate.length:${pushDate.length} modifyData.length:${modifyData.length}\n pushDate:\n${JSON.stringify(pushDate,null," ")}\n modifyData:\n${JSON.stringify(modifyData, null, " ")}`)
     }
   }
 }
